@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes';
 import { errorHandler } from './middleware/errorMiddleware';
 import { configureSecurityMiddleware } from './middleware/securityMiddleware';
 import { AppError } from './utils/errors/AppError';
+import { logInfo } from './utils/logger';
 
 const app = express();
 
@@ -13,10 +14,30 @@ import { config } from 'dotenv';
 config();
 
 // CORS configuration
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:8081')
+  .split(',')
+  .map(origin => origin.trim().replace(/\/$/, '')); // Remove trailing slashes
+
+logInfo('Configured CORS allowed origins:', { allowedOrigins });
+
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:8081',
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      const normalizedOrigin = origin.replace(/\/$/, ''); // Remove trailing slash from request origin
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        logInfo('CORS request allowed:', { origin, normalizedOrigin });
+        callback(null, true);
+      } else {
+        logInfo('CORS request denied:', { origin, normalizedOrigin, allowedOrigins });
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
