@@ -27,6 +27,11 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 // Security middleware (after parsing, includes rate limiting and sanitization)
 configureSecurityMiddleware(app);
 
+// Health check endpoint
+app.get('/api/health', (_, res) => {
+  res.status(200).json({ status: 'ok', message: 'Server is running' });
+});
+
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
