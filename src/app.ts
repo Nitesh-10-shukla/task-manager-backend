@@ -14,7 +14,7 @@ import { config } from 'dotenv';
 config();
 
 // CORS configuration
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:8081')
+const allowedOrigins = (process.env.CORS_ORIGIN || 'https://tm-dev.netlify.app')
   .split(',')
   .map(origin => origin.trim().replace(/\/$/, '')); // Remove trailing slashes
 
@@ -25,7 +25,7 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-      
+
       const normalizedOrigin = origin.replace(/\/$/, ''); // Remove trailing slash from request origin
       if (allowedOrigins.includes(normalizedOrigin)) {
         logInfo('CORS request allowed:', { origin, normalizedOrigin });
