@@ -3,7 +3,7 @@ services:
     name: task-manager-backend
     env: node
     region: singapore
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci --only=production && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
